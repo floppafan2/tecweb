@@ -82,22 +82,22 @@
     <p>Lee y muestra los valores de las variables del ejercicio anterior, pero ahora con la ayuda de
     la matriz $GLOBALS o del modificador global de PHP.</p>
     <?php
-         echo '<h4>Respuesta:</h4>'; 
-         echo "Valor de a: ";
-         var_dump($GLOBALS['a']);
-         echo "<br>";
-         
-         echo "Valor de b: ";
-         var_dump($GLOBALS['b']);
-         echo "<br>";
-         
-         echo "Valor de c: ";
-         var_dump($GLOBALS['c']);
-         echo "<br>";
-         
-         echo "Valor de z: ";
-         print_r($GLOBALS['z']);
-         unset($a, $b, $c, $z);
+        echo '<h4>Respuesta:</h4>'; 
+        echo "Valor de a: ";
+        var_dump($GLOBALS['a']);
+        echo "<br>";
+        
+        echo "Valor de b: ";
+        var_dump($GLOBALS['b']);
+        echo "<br>";
+        
+        echo "Valor de c: ";
+        var_dump($GLOBALS['c']);
+        echo "<br>";
+        
+        echo "Valor de z: ";
+        print_r($GLOBALS['z']);
+        unset($a, $b, $c, $z);
      ?>
      <h2>Ejercicio 5</h2>
      <p>Dar el valor de las variables $a, $b, $c al final del siguiente script:</p>
@@ -140,6 +140,19 @@
         echo "Valor de e: " . var_export($e, true) . "<br>";
         echo "Valor de f: " . var_export($f, true) . "<br>";
         unset($a, $b, $c, $d, $e, $f);
+    ?>
+    <h2>Ejercicio 7</h2>
+    <p>Usando la variable predefinida $_SERVER, determina lo siguiente:</p>
+    <?php
+        $apache_version = $_SERVER['SERVER_SOFTWARE']; 
+        $php_version = phpversion(); 
+        $server_os = PHP_OS;
+        $browser_language = $_SERVER['HTTP_ACCEPT_LANGUAGE'];
+        
+        echo '<h4>Respuesta:</h4>'; 
+        echo "Versión de Apache y PHP: $apache_version, $php_version <br>";
+        echo "Sistema operativo del servidor: $server_os <br>";
+        echo "Idioma del navegador: $browser_language <br>";
     ?>
 </body>
 </html>
