@@ -50,9 +50,29 @@
         echo "Valor de c: $c <br>";
 
         echo "<p>La razon por la que el segundo bloque de respuestas se ve asi es porque el valor de a es PHP server, el
-        valor de b y c estan apuntados de la direccion de la variable a.</p>"
+        valor de b y c estan apuntados de la direccion de la variable a.</p>";
+        unset($a, $b, $c);
     ?>
-    
-    
+    <h2>Ejercicio 3</h2>
+    <p>Muestra el contenido de cada variable inmediatamente después de cada asignación,
+    verificar la evolución del tipo de estas variables (imprime todos los componentes de los
+    arreglo):</p>
+    <?php
+        error_reporting(0);
+        $a = "PHP5";
+        echo "Valor de a: $a <br>";
+        $z[] = &$a;
+        print_r($z);
+        $b = "5a version de PHP";
+        echo "<br>Valor de b: $b <br>";
+        $c = $b*10;
+        echo "Valor de c: $c <br>";
+        $a .= $b;
+        echo "Valor de a: $a <br>";
+        $b *= $c;
+        echo "Valor de b: $b <br>";
+        $z[0] = "MySQL";
+        print_r($z);
+    ?>
 </body>
 </html>
