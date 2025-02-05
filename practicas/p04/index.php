@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="es">
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-    <title>Práctica 3</title>
+    <title>Práctica 4</title>
 </head>
 <body>
     <h2>Ejercicio 1</h2>
@@ -78,10 +78,10 @@
         echo "Valor de z: ";
         print_r($z);
     ?>
-     <h2>Ejercicio 4</h2>
-     <p>Lee y muestra los valores de las variables del ejercicio anterior, pero ahora con la ayuda de
-     la matriz $GLOBALS o del modificador global de PHP.</p>
-     <?php
+    <h2>Ejercicio 4</h2>
+    <p>Lee y muestra los valores de las variables del ejercicio anterior, pero ahora con la ayuda de
+    la matriz $GLOBALS o del modificador global de PHP.</p>
+    <?php
          echo '<h4>Respuesta:</h4>'; 
          echo "Valor de a: ";
          var_dump($GLOBALS['a']);
@@ -114,5 +114,32 @@
         echo "Valor de c: $c <br>";
         unset($a, $b, $c);
      ?>
+    <h2>Ejercicio 6</h2>
+    <p>Dar y comprobar el valor booleano de las variables $a, $b, $c, $d, $e y $f y muéstralas
+    usando la función var_dump(datos).</p>
+    <p>Después investiga una función de PHP que permita transformar el valor booleano de $c y $e
+    en uno que se pueda mostrar con un echo:</p>
+    <?php
+        $a = "0";
+        $b = "TRUE";
+        $c = FALSE;
+        $d = ($a OR $b);
+        $e = ($a AND $c);
+        $f = ($a XOR $b);
+
+        echo '<h4>Respuesta:</h4>'; 
+        echo "Valores utilizando var_dump: ";
+        var_dump($a, $b, $c, $d, $e, $f);
+        
+        echo"<br><br>";
+        echo "Valores utilizando echo: <br>";
+        echo "Valor de a: $a <br>";
+        echo "Valor de b: $b <br>"; 
+        echo "Valor de c: " . var_export($c, true) . "<br>";
+        echo "Valor de d: " . var_export($d, true) . "<br>";
+        echo "Valor de e: " . var_export($e, true) . "<br>";
+        echo "Valor de f: " . var_export($f, true) . "<br>";
+        unset($a, $b, $c, $d, $e, $f);
+    ?>
 </body>
 </html>
