@@ -99,5 +99,20 @@
          print_r($GLOBALS['z']);
          unset($a, $b, $c, $z);
      ?>
+     <h2>Ejercicio 5</h2>
+     <p>Dar el valor de las variables $a, $b, $c al final del siguiente script:</p>
+     <?php
+        echo '<h4>Respuesta:</h4>'; 
+        $a = "7 personas";
+        echo "Valor de a: $a <br>";
+        $b = (integer) $a;
+        $a = "9E3";
+        $c = (double) $a;
+
+        echo "Valor de b: $b <br>";
+        echo "Valor de a: $a <br>";
+        echo "Valor de c: $c <br>";
+        unset($a, $b, $c);
+     ?>
 </body>
 </html>
