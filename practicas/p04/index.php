@@ -59,10 +59,13 @@
     arreglo):</p>
     <?php
         error_reporting(0);
+        echo '<h4>Respuesta:</h4>'; 
         $a = "PHP5";
         echo "Valor de a: $a <br>";
         $z[] = &$a;
+        echo "Valor de z: ";
         print_r($z);
+        unset($z);
         $b = "5a version de PHP";
         echo "<br>Valor de b: $b <br>";
         $c = $b*10;
@@ -72,7 +75,29 @@
         $b *= $c;
         echo "Valor de b: $b <br>";
         $z[0] = "MySQL";
+        echo "Valor de z: ";
         print_r($z);
     ?>
+     <h2>Ejercicio 4</h2>
+     <p>Lee y muestra los valores de las variables del ejercicio anterior, pero ahora con la ayuda de
+     la matriz $GLOBALS o del modificador global de PHP.</p>
+     <?php
+         echo '<h4>Respuesta:</h4>'; 
+         echo "Valor de a: ";
+         var_dump($GLOBALS['a']);
+         echo "<br>";
+         
+         echo "Valor de b: ";
+         var_dump($GLOBALS['b']);
+         echo "<br>";
+         
+         echo "Valor de c: ";
+         var_dump($GLOBALS['c']);
+         echo "<br>";
+         
+         echo "Valor de z: ";
+         print_r($GLOBALS['z']);
+         unset($a, $b, $c, $z);
+     ?>
 </body>
 </html>
