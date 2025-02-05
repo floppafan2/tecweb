@@ -30,6 +30,29 @@
         echo '<li>$house*5 es inválida porque el símbolo * no está permitido.</li>';
         echo '</ul>';
     ?>
+    <h2>Ejercicio 2</h2>
+    <p>Proporcionar los valores de $a, $b, $c como sigue:</p>
+    <?php
+        echo '<h4>Respuesta:</h4>'; 
+        $a = "ManejadorSQL";
+        $b = 'MySQL';
+        $c = &$a;
+
+        echo "Valor de a: $a <br>";
+        echo "Valor de b: $b <br>";
+        echo "Valor de c: $c <br>";
+
+        $a = "PHP server";
+        $b = &$a;
+
+        echo "<br>Valor de a: $a <br>";
+        echo "Valor de b: $b <br>";
+        echo "Valor de c: $c <br>";
+
+        echo "<p>La razon por la que el segundo bloque de respuestas se ve asi es porque el valor de a es PHP server, el
+        valor de b y c estan apuntados de la direccion de la variable a.</p>"
+    ?>
+    
     
 </body>
 </html>
