@@ -19,11 +19,13 @@
     <h2>Ejercicio 2</h2>
     <p>Crea un programa para la generación repetitiva de 3 números aleatorios hasta obtener una
     secuencia compuesta por: impar, par, impar.</p>
-
     <p>Estos números deben almacenarse en una matriz de Mx3, donde M es el número de filas y
     3 el número de columnas. Al final muestra el número de iteraciones y la cantidad de
     números generados.</p>
-
+    <?php
+        include_once 'src/funciones.php';
+        generarMatriz();
+    ?>
     <h2>Ejemplo de POST</h2>
     <form action="http://localhost/tecweb/practicas/p04/index.php" method="post">
         Name: <input type="text" name="name"><br>
