@@ -32,4 +32,20 @@
 
         echo "<br>$totalNumeros números obtenidos en $iteraciones iteraciones<br>";
     }
+    function encontrarMultiploWhile($numeroDado) { //Ejercicio 3
+        $numeroAleatorio = rand(1, 1000);
+        while ($numeroAleatorio % $numeroDado !== 0) {
+            $numeroAleatorio = rand(1, 1000);
+        }
+        echo "<h4>Usando while:</h4>";
+        echo "Primer múltiplo de: $numeroDado ,encontrado es: $numeroAleatorio <br>"; 
+    }
+    function encontrarMultiploDoWhile($numeroDado) {
+        do {
+            $numeroAleatorio = rand(1, 1000);
+        } while ($numeroAleatorio % $numeroDado !== 0);
+        echo "<h4>Usando do-while:</h4>";
+        echo "Primer múltiplo de: $numeroDado ,encontrado es: $numeroAleatorio <br>";
+    }
+    
 ?>
