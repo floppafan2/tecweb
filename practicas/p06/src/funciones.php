@@ -47,5 +47,16 @@
         echo "<h4>Usando do-while:</h4>";
         echo "Primer múltiplo de: $numeroDado ,encontrado es: $numeroAleatorio <br>";
     }
-    
+    function generarAscii() { //Ejercicio 4
+        $asciiArray = [];
+        for ($i = 97; $i <= 122; $i++) {
+            $asciiArray[$i] = chr($i);
+        }
+        echo "<table border='1'>";
+        echo "<tr><th>Índice ASCII</th><th>Letra</th></tr>";
+        foreach ($asciiArray as $indice => $letra) {
+            echo "<tr><td>$indice</td><td>$letra</td></tr>";
+        }
+        echo "</table>";
+    }
 ?>
