@@ -6,6 +6,13 @@
 </head>
 <body>
     <h2>Ejercicio 5</h2>
+    <p>Usar las variables $edad y $sexo en una instrucción if para identificar una persona de
+    sexo “femenino”, cuya edad oscile entre los 18 y 35 años y mostrar un mensaje de
+    bienvenida apropiado.</p>
+    <p>En caso contrario, deberá devolverse otro mensaje indicando el error.</p>
+    <li>Los valores para $edad y $sexo se deben obtener por medio de un formulario en
+    HTML.</li>
+    <li>Utilizar el la Variable Superglobal $_POST.</li>
     <p>Ingrese su edad y seleccione su sexo.</p>
 
     <form action="http://localhost/tecweb/practicas/p06/src/func5.php" method="POST">
