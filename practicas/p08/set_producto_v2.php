@@ -100,7 +100,11 @@
         }
 
         /*** INSERTAR EL PRODUCTO SI NO EXISTE ***/
-        $sql_insert = "INSERT INTO productos (nombre, marca, modelo, precio, detalles, unidades, imagen) VALUES (?, ?, ?, ?, ?, ?, ?)";
+        
+    /*** INSERTAR EL PRODUCTO CON `eliminado = 0` ***/
+    $sql_insert = "INSERT INTO productos (nombre, marca, modelo, precio, detalles, unidades, imagen, eliminado) 
+    VALUES (?, ?, ?, ?, ?, ?, ?, 0)";
+    //$sql_insert = "INSERT INTO productos VALUES (?, ?, ?, ?, ?, ?, ?, 0)";
         $stmt_insert = $link->prepare($sql_insert);
         if ($stmt_insert) {
             $stmt_insert->bind_param("sssdsis", $nombre, $marca, $modelo, $precio, $detalles, $unidades, $imagen);
