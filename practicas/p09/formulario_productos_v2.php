@@ -1,12 +1,10 @@
 <?php
 // Conectar a la base de datos
 @$link = new mysqli('localhost', 'root', '7*Vl*zwyPeGlNLTm', 'marketzone');
-
 // Verificar conexión
 if ($link->connect_errno) {
     die('<p class="alert alert-danger">Falló la conexión: ' . $link->connect_error . '</p>');
 }
-
 // Obtener el ID del producto desde la URL
 $productoID = isset($_GET['id']) ? intval($_GET['id']) : 0;
 $producto = null;
@@ -25,7 +23,6 @@ if ($productoID > 0) {
 }
 $link->close();
 ?>
-
 <!DOCTYPE html>
 <html lang="es">
   <head>
