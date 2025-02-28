@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formulario de Productos</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        form { max-width: 400px; margin: auto; }
+        label { font-weight: bold; }
+        input, select, textarea { width: 100%; margin-bottom: 10px; padding: 8px; }
+        .error { color: red; font-size: 12px; }
+        button { background-color: blue; color: white; padding: 10px; border: none; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+    <h2>Registro de Producto</h2>
+
+    <form id="productForm">
+        <label for="nombre">Nombre del Producto:</label>
+        <input type="text" id="nombre" name="nombre" maxlength="100" required>
+        <span class="error" id="errorNombre"></span>
+
+        <label for="marca">Marca:</label>
+        <select id="marca" name="marca" required>
+            <option value="">Seleccione una marca</option>
+            <option value="Apple">Apple</option>
+            <option value="Samsung">Samsung</option>
+            <option value="Sony">Sony</option>
+            <option value="Xiaomi">Xiaomi</option>
+            <option value="Otra">Otra</option>
+        </select>
+        <span class="error" id="errorMarca"></span>
+
+        <label for="modelo">Modelo:</label>
+        <input type="text" id="modelo" name="modelo" maxlength="25" pattern="[A-Za-z0-9 ]+" required>
+        <span class="error" id="errorModelo"></span>
+
+        <label for="precio">Precio:</label>
+        <input type="number" id="precio" name="precio" min="99.99" step="0.01" required>
+        <span class="error" id="errorPrecio"></span>
+
+        <label for="detalles">Detalles:</label>
+        <textarea id="detalles" name="detalles" maxlength="250"></textarea>
+        <span class="error" id="errorDetalles"></span>
+
+        <label for="unidades">Unidades:</label>
+        <input type="number" id="unidades" name="unidades" min="0" required>
+        <span class="error" id="errorUnidades"></span>
+
+        <label for="imagen">Ruta de la Imagen:</label>
+        <input type="text" id="imagen" name="imagen">
+        <span class="error" id="errorImagen"></span>
+
+        <button type="submit">Registrar Producto</button>
+    </form>
+
+    <script>
+        document.getElementById("productForm").addEventListener("submit", function(event) {
+            let valid = true;
+
+            // Validación del Nombre
+            const nombre = document.getElementById("nombre");
+            if (nombre.value.trim() === "" || nombre.value.length > 100) {
+                document.getElementById("errorNombre").textContent = "El nombre es obligatorio y debe tener 100 caracteres o menos.";
+                valid = false;
+            } else {
+                document.getElementById("errorNombre").textContent = "";
+            }
+
+            // Validación de la Marca
+            const marca = document.getElementById("marca");
+            if (marca.value === "") {
+                document.getElementById("errorMarca").textContent = "Debe seleccionar una marca.";
+                valid = false;
+            } else {
+                document.getElementById("errorMarca").textContent = "";
+            }
+
+            // Validación del Modelo
+            const modelo = document.getElementById("modelo");
+            const modeloRegex = /^[A-Za-z0-9 ]+$/;
+            if (modelo.value.trim() === "" || modelo.value.length > 25 || !modeloRegex.test(modelo.value)) {
+                document.getElementById("errorModelo").textContent = "El modelo es obligatorio, alfanumérico y debe tener 25 caracteres o menos.";
+                valid = false;
+            } else {
+                document.getElementById("errorModelo").textContent = "";
+            }
+
+            // Validación del Precio
+            const precio = document.getElementById("precio");
+            if (precio.value === "" || parseFloat(precio.value) <= 99.99) {
+                document.getElementById("errorPrecio").textContent = "El precio debe ser mayor a 99.99.";
+                valid = false;
+            } else {
+                document.getElementById("errorPrecio").textContent = "";
+            }
+
+            // Validación de los Detalles
+            const detalles = document.getElementById("detalles");
+            if (detalles.value.length > 250) {
+                document.getElementById("errorDetalles").textContent = "Los detalles deben tener 250 caracteres o menos.";
+                valid = false;
+            } else {
+                document.getElementById("errorDetalles").textContent = "";
+            }
+
+            // Validación de las Unidades
+            const unidades = document.getElementById("unidades");
+            if (unidades.value === "" || parseInt(unidades.value) < 0) {
+                document.getElementById("errorUnidades").textContent = "Las unidades deben ser 0 o un número mayor.";
+                valid = false;
+            } else {
+                document.getElementById("errorUnidades").textContent = "";
+            }
+
+            // Validación de la Ruta de la Imagen
+            const imagen = document.getElementById("imagen");
+            if (imagen.value.trim() === "") {
+                imagen.value = "img/default.jpg";  // Imagen por defecto
+            }
+
+            if (!valid) {
+                event.preventDefault();  // Evita el envío del formulario si hay errores
+            }
+        });
+    </script>
+
+</body>
+</html>
