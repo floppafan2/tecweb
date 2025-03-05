@@ -15,6 +15,7 @@ function buscarID(e) {
      * http://qbit.com.mx/blog/2013/01/07/la-diferencia-entre-return-false-preventdefault-y-stoppropagation-en-jquery/#:~:text=PreventDefault()%20se%20utiliza%20para,escuche%20a%20trav%C3%A9s%20del%20DOM
      * https://www.geeksforgeeks.org/when-to-use-preventdefault-vs-return-false-in-javascript/
      */
+    console.log("Hola");
     e.preventDefault();
 
     // SE OBTIENE EL ID A BUSCAR
@@ -58,6 +59,56 @@ function buscarID(e) {
         }
     };
     client.send("id="+id);
+}
+
+function buscarProducto(e) {
+    console.log("Hola");
+    e.preventDefault();
+
+    var word = document.getElementById('word').value; // Captura el valor correcto
+
+    if (search === "") {
+        alert("Por favor ingresa un nombre para buscar.");
+        return;
+    }
+
+    var client = getXMLHttpRequest();
+    client.open('POST', './backend/read.php', true);
+    client.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+    client.onreadystatechange = function () {
+        if (client.readyState == 4 && client.status == 200) {
+            console.log('[CLIENTE]\n' + client.responseText);
+
+            let productos = JSON.parse(client.responseText);
+            let template = "";
+
+            if (productos.length > 0) {
+                productos.forEach(producto => {
+                    let descripcion = `
+                        <li>Precio: ${producto.precio}</li>
+                        <li>Unidades: ${producto.unidades}</li>
+                        <li>Modelo: ${producto.modelo}</li>
+                        <li>Marca: ${producto.marca}</li>
+                        <li>Detalles: ${producto.detalles}</li>
+                    `;
+
+                    template += `
+                        <tr>
+                            <td>${producto.id}</td>
+                            <td>${producto.nombre}</td>
+                            <td><ul>${descripcion}</ul></td>
+                        </tr>
+                    `;
+                });
+            } else {
+                template = "<tr><td colspan='3'>No se encontraron productos</td></tr>";
+            }
+
+            document.getElementById("productos").innerHTML = template;
+        }
+    };
+
+    client.send("id="+word);
 }
 
 // FUNCIÓN CALLBACK DE BOTÓN "Agregar Producto"
