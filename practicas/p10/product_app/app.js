@@ -114,17 +114,44 @@ function buscarProducto(e) {
 // FUNCIÓN CALLBACK DE BOTÓN "Agregar Producto"
 function agregarProducto(e) {
     e.preventDefault();
-
+    
     // SE OBTIENE DESDE EL FORMULARIO EL JSON A ENVIAR
     var productoJsonString = document.getElementById('description').value;
     // SE CONVIERTE EL JSON DE STRING A OBJETO
     var finalJSON = JSON.parse(productoJsonString);
     // SE AGREGA AL JSON EL NOMBRE DEL PRODUCTO
     finalJSON['nombre'] = document.getElementById('name').value;
-    // SE OBTIENE EL STRING DEL JSON FINAL
-    productoJsonString = JSON.stringify(finalJSON,null,2);
 
-    // SE CREA EL OBJETO DE CONEXIÓN ASÍNCRONA AL SERVIDOR
+    // Validación de datos
+    if (!finalJSON.nombre) {
+        alert("El nombre del producto es obligatorio.");
+        return;
+    }
+
+    if (typeof finalJSON.precio !== 'number' || finalJSON.precio < 0) {
+        alert("El precio debe ser un número mayor o igual a 0.");
+        return;
+    }
+
+    if (typeof finalJSON.unidades !== 'number' || finalJSON.unidades < 1) {
+        alert("Las unidades deben ser un número mayor o igual a 1.");
+        return;
+    }
+
+    if (!finalJSON.modelo) {
+        alert("El modelo del producto es obligatorio.");
+        return;
+    }
+
+    if (!finalJSON.marca) {
+        alert("La marca del producto es obligatoria.");
+        return;
+    }
+
+    // Si todas las validaciones pasan, se envía el JSON
+    // SE AGREGA AL JSON EL NOMBRE DEL PRODUCTO
+    productoJsonString = JSON.stringify(finalJSON, null, 2);
+
     var client = getXMLHttpRequest();
     client.open('POST', './backend/create.php', true);
     client.setRequestHeader('Content-Type', "application/json;charset=UTF-8");
@@ -132,6 +159,18 @@ function agregarProducto(e) {
         // SE VERIFICA SI LA RESPUESTA ESTÁ LISTA Y FUE SATISFACTORIA
         if (client.readyState == 4 && client.status == 200) {
             console.log(client.responseText);
+            try {
+                var response = JSON.parse(client.responseText);
+                
+                if (response.status === "success") {
+                    window.alert("Producto agregado correctamente");
+                } else {
+                    window.alert("Error al agregar el producto: " + response.message);
+                }
+            } catch (e) {
+                window.alert("Error en la respuesta del servidor");
+                console.error("Error al parsear JSON:", e);
+            }
         }
     };
     client.send(productoJsonString);
