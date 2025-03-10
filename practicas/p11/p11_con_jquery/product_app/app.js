@@ -6,7 +6,9 @@ var baseJSON = {
     "marca": "NA",
     "detalles": "NA",
     "imagen": "img/default.png"
-  };
+};
+
+let edit = false;
 
 function init() {
     /**
@@ -15,14 +17,13 @@ function init() {
      */
     var JsonString = JSON.stringify(baseJSON,null,2);
     document.getElementById("description").value = JsonString;
-
-    // SE LISTAN TODOS LOS PRODUCTOS
-    listarProductos();
+    fetchProducts();
 }
 
-// FUNCIÓN CALLBACK AL CARGAR LA PÁGINA O AL AGREGAR UN PRODUCTO
+//Funcion de busqueda de productos
 $(document).ready(function(){
     $('#product-result').hide();
+
     $('#search').keyup(function(e) {
         if($('#search').val()){
             let search = $('#search').val();
@@ -72,15 +73,17 @@ $(document).ready(function(){
 
     $('#product-form').submit(function(e) {
         e.preventDefault();
-    
+        let id = $('#productId').val()
         let productoJsonString = $('#description').val();
         let finalJSON;
-    
+
         try {
             finalJSON = JSON.parse(productoJsonString);
             finalJSON['nombre'] = $('#name').val();
             productoJsonString = JSON.stringify(finalJSON, null, 2);
-
+            // ******************************************************
+            // AQUÍ AGREGAS LAS VALIDACIONES DE LOS DATOS EN EL JSON
+            // ******************************************************
             let errores = [];
 
             if (!finalJSON.nombre) {
@@ -101,8 +104,8 @@ $(document).ready(function(){
             if(!finalJSON.precio){
                 errores.push("No hay precio de producto");
             }
-            if(!finalJSON.precio > 0){
-                errores.push("El precio debe ser mayor que 0");
+            if(!finalJSON.precio > 99.99){
+                errores.push("El precio no puede ser menor a 99.99");
             }
             if(finalJSON.detalles.length > 250){
                 errores.push("Los detalles no pueden ser mayor a 250 caracteres");
@@ -111,7 +114,7 @@ $(document).ready(function(){
                 errores.push("No hay unidades de producto");
             }
             if(!finalJSON.unidades > 0){
-                errores.push("Las unidades deben ser mayor a 0");
+                errores.push("Las unidades no pueden ser menores a 0");
             }
             if(isNaN(finalJSON.precio)){
                 errores.push("El precio no es un número");
@@ -120,21 +123,32 @@ $(document).ready(function(){
                 finalJSON.imagen = "img/default.jpg";
             }
 
+            // ******************************************************
+            // --> EN CASO DE NO HABER ERRORES, SE ENVÍA EL PRODUCTO A AGREGAR
+            // ******************************************************
+
             if (errores.length > 0) {
                 // Mostrar todos los errores en una alerta
                 alert("Errores en el formulario:\n\n" + errores.join("\n"));
                 return; // Detiene el envío si hay errores
             }
 
+            // ******************************************************
+            // --> EN CASO DE NO HABER ERRORES, SE ENVÍA EL PRODUCTO A AGREGAR
+            // ******************************************************
+
+
             // Envío con POST y JSON en el cuerpo
+            let url = edit === false ? 'product-add.php' : 'product-update.php';
             $.ajax({
-                url: 'backend/product-add.php',
+                url: 'backend/' + url + '?id=' + id,
                 type: 'POST', // Usamos POST
                 contentType: 'application/json; charset=UTF-8', // Indicamos que enviamos JSON
                 data: productoJsonString, // Enviamos el JSON como cadena en el cuerpo
                 success: function(response) {
                     console.log(response);
-                    let respuesta = JSON.parse(response);
+                    // Ya no es necesario hacer JSON.parse(response), ya que la respuesta es un objeto
+                    let respuesta = response; // El servidor debe devolver un objeto
                     let template_bar = `
                         <li style="list-style: none;">status: ${respuesta.status}</li>
                         <li style="list-style: none;">message: ${respuesta.message}</li>
@@ -142,13 +156,15 @@ $(document).ready(function(){
                     $("#product-result").addClass("card my-4 d-block");
                     $("#container").html(template_bar);
                     fetchProducts();
+                    edit = false;
                 },
                 error: function(status, error) {
                     console.error("Error en la solicitud AJAX:", status, error);
                 }
             });
     
-        } catch (error) {
+        } 
+        catch (error) {
             console.error("Error al analizar el JSON:", error);
         }
     });
@@ -159,6 +175,7 @@ $(document).ready(function(){
         url: 'backend/product-list.php',
         type: 'GET',
         success: function(response) {
+            console.log(response);
             let product = JSON.parse(response);
             let template = '';
             product.forEach(product => {
@@ -192,7 +209,7 @@ $(document).ready(function(){
     });
 
     $(document).on('click','.product-delete',function(){
-        if(confirm('¿Desea eliminarlo?')){
+        if(confirm('Quieres eliminarlo?')){
             let element = $(this)[0].parentElement.parentElement;
             let id = $(element).attr('productId')
             $.get('backend/product-delete.php',{id:id},function(response){
@@ -201,10 +218,32 @@ $(document).ready(function(){
         }
     })
 
-    $(document).on('click','.product-item',function(){
+    $(document).on('click', '.product-item', function () { 
         let element = $(this)[0].parentElement.parentElement;
         let id = $(element).attr('productId');
-        console.log(id)
-    })
+    
+        $.post('backend/product-get.php', { id }, function (response) {
+            edit = true;
+    
+            console.log("Respuesta del servidor:", response); // Verifica el formato de la respuesta
+    
+            const product = response; // ✅ No necesitamos JSON.parse() si la respuesta ya es un objeto
+    
+            $('#name').val(product.nombre);
+    
+            var baseJSON = {
+                "precio": product.precio,
+                "unidades": product.unidades,
+                "modelo": product.modelo,
+                "marca": product.marca,
+                "detalles": product.detalles,
+                "imagen": product.imagen
+            };
+    
+            $('#productId').val(product.id);
+            var JsonString = JSON.stringify(baseJSON, null, 2);
+            document.getElementById("description").value = JsonString;
+        });
+    });
 
 }
