@@ -32,10 +32,28 @@
               <!-- FORMULARIO PARA AGREGAR PRODUCTO -->
               <form id="product-form">
                 <div class="form-group">
-                  <input class="form-control" type="text" id="name" placeholder="Nombre de producto">
+                  <input class="form-control" type="text" id="name" placeholder="Nombre de producto" required>
                 </div>
                 <div class="form-group">
-                  <textarea class="form-control" id="description" cols="30" rows="10" placeholder="JSON de producto"></textarea>
+                  <fieldset>
+                    <label for="marca">Marca:</label>
+                    <input type="text" id="marca" name="marca" class="form-control" required value="NA">
+          
+                    <label for="modelo">Modelo:</label>
+                    <input type="text" id="modelo" name="modelo" class="form-control" required value="XX-000">
+          
+                    <label for="precio">Precio:</label>
+                    <input type="number" id="precio" name="precio" class="form-control" step="0.01" required value="0.0">
+          
+                    <label for="unidades">Unidades:</label>
+                    <input type="number" id="unidades" name="unidades" class="form-control" required value="1">
+          
+                    <label for="detalles">Detalles:</label>
+                    <input type="text" id="detalles" name="detalles" class="form-control" required value="NA">
+          
+                    <label for="form-image">Imagen:</label> 
+                    <input type="text" id="imagen" name="imagen" class="form-control" required value="img/default.png">
+                  </fieldset>
                 </div>
                 <input type="hidden" id="productId">
                 <button class="btn btn-primary btn-block text-center" type="submit">
