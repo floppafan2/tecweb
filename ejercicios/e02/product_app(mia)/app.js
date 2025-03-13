@@ -71,105 +71,123 @@ $(document).ready(function(){
         }
     });
 
-    $('#product-form').submit(function(e) {
+    $('#product-form').submit(e => {
         e.preventDefault();
-        let id = $('#productId').val()
-        let productoJsonString = $('#description').val();
-        let finalJSON;
-
-        try {
-            finalJSON = JSON.parse(productoJsonString);
-            finalJSON['nombre'] = $('#name').val();
-            productoJsonString = JSON.stringify(finalJSON, null, 2);
-            // ******************************************************
-            // AQUÍ AGREGAS LAS VALIDACIONES DE LOS DATOS EN EL JSON
-            // ******************************************************
-            let errores = [];
-
-            if (!finalJSON.nombre) {
-                errores.push("No hay nombre producto");
-            }
-            if(!finalJSON.nombre.length > 100){
-                errores.push("El nombre del producto no puede ser mayor a 100 caracteres");
-            }
-            if (!finalJSON.marca) {
-                errores.push("No hay marca de producto");
-            }
-            if(!finalJSON.modelo){
-                errores.push("No hay modelo de producto");
-            }
-            if(!finalJSON.modelo.length > 25){
-                errores.push("El modelo no puede ser mayor a 25 caracteres");
-            }
-            if(!finalJSON.precio){
-                errores.push("No hay precio de producto");
-            }
-            if(!finalJSON.precio > 99.99){
-                errores.push("El precio no puede ser menor a 99.99");
-            }
-            if(finalJSON.detalles.length > 250){
-                errores.push("Los detalles no pueden ser mayor a 250 caracteres");
-            }
-            if(!finalJSON.unidades){
-                errores.push("No hay unidades de producto");
-            }
-            if(!finalJSON.unidades > 0){
-                errores.push("Las unidades no pueden ser menores a 0");
-            }
-            if(isNaN(finalJSON.precio)){
-                errores.push("El precio no es un número");
-            }
-            if(finalJSON.imagen == ""){
-                finalJSON.imagen = "img/default.jpg";
-            }
-
-            // ******************************************************
-            // --> EN CASO DE NO HABER ERRORES, SE ENVÍA EL PRODUCTO A AGREGAR
-            // ******************************************************
-
-            if (errores.length > 0) {
-                // Mostrar todos los errores en una alerta
-                alert("Errores en el formulario:\n\n" + errores.join("\n"));
-                return; // Detiene el envío si hay errores
-            }
-
-            // ******************************************************
-            // --> EN CASO DE NO HABER ERRORES, SE ENVÍA EL PRODUCTO A AGREGAR
-            // ******************************************************
-
-
-            // Envío con POST y JSON en el cuerpo
-            let url = edit === false ? 'product-add.php' : 'product-update.php';
-            $.ajax({
-                url: 'backend/' + url + '?id=' + id,
-                type: 'POST', // Usamos POST
-                contentType: 'application/json; charset=UTF-8', // Indicamos que enviamos JSON
-                data: productoJsonString, // Enviamos el JSON como cadena en el cuerpo
-                success: function(response) {
-                    console.log(response);
-                    // Ya no es necesario hacer JSON.parse(response), ya que la respuesta es un objeto
-                    let respuesta = response; // El servidor debe devolver un objeto
-                    let template_bar = `
-                        <li style="list-style: none;">status: ${respuesta.status}</li>
-                        <li style="list-style: none;">message: ${respuesta.message}</li>
-                    `;
-                    $("#product-result").addClass("card my-4 d-block");
-                    $("#container").html(template_bar);
-                    fetchProducts();
-                    edit = false;
-                },
-                error: function(status, error) {
-                    console.error("Error en la solicitud AJAX:", status, error);
-                }
-            });
+        let isValid = true;
+        let errorMessages = [];
     
-        } 
-        catch (error) {
-            console.error("Error al analizar el JSON:", error);
+        // Obtener datos del formulario
+        let postData = {
+            nombre: $('#name').val().trim(),
+            marca: $('#marca').val().trim(),
+            modelo: $('#modelo').val().trim(),
+            precio: parseFloat($('#precio').val()),
+            unidades: parseInt($('#unidades').val()),
+            detalles: $('#detalles').val().trim(),
+            imagen: $('#imagen').val().trim(),
+            id: $('#productId').val().trim()
+        };
+    
+        // Validaciones básicas
+        $('.form-control').each(function() {
+            let field = $(this);
+            let value = field.val().trim();
+            let fieldName = field.attr('id');
+            let errorMessage = "";
+            
+            if (fieldName !== 'search' && value === "") {
+                errorMessage = `El campo ${fieldName} no puede estar vacío.<br>`;
+            } else if ((fieldName === 'precio' || fieldName === 'unidades') && isNaN(value)) {
+                errorMessage = `El campo ${fieldName} debe ser un número válido.<br>`;
+            }
+            
+            if (errorMessage) {
+                isValid = false;
+                errorMessages.push(errorMessage);
+                let statusBar = $(`#status-${fieldName}`);
+                if (statusBar.length === 0) {
+                    field.after(`<small id='status-${fieldName}' class='text-danger'>${errorMessage}</small>`);
+                } else {
+                    statusBar.text(errorMessage);
+                }
+            }
+        });
+        
+        if (!isValid) {
+            $('#container').html(`<ul class='text-danger'><li>${errorMessages.join('</li><li>')}</li></ul>`);
+            return;
+        }
+    
+        const url = edit === false ? './backend/product-add.php' : './backend/product-edit.php';
+            
+        $.post(url, postData, (response) => {
+            let respuesta = JSON.parse(response);
+            let template_bar = `
+                <li style="list-style: none;">status: ${respuesta.status}</li>
+                <li style="list-style: none;">message: ${respuesta.message}</li>
+            `;
+    
+            // Reiniciar formulario
+            $('#product-form')[0].reset();
+            $('#productId').val("");
+                
+            // Mostrar barra de estado
+            $('#product-result').show();
+            $('#container').html(template_bar);
+                
+            // Refrescar lista de productos
+            listarProductos();
+                
+            // Resetear bandera de edición
+            edit = false;
+            $('button.btn-primary').text("Agregar Producto");
+        });
+    });
+    $('.form-control').on('blur', function() {
+        let field = $(this);
+        let value = field.val().trim();
+        let fieldName = field.attr('id');
+        let errorMessage = "";
+        
+        if (fieldName !== 'search' && value === "") {
+            errorMessage = `El campo ${fieldName} no puede estar vacío.<br>`;
+        } else if ((fieldName === 'precio' || fieldName === 'unidades') && isNaN(value)) {
+            errorMessage = `El campo ${fieldName} debe ser un número válido.<br>`;
+        }
+        
+        let statusBar = $(`#status-${fieldName}`);
+        
+        if (errorMessage) {
+            if (statusBar.length === 0) {
+                field.after(`<small id='status-${fieldName}' class='text-danger'>${errorMessage}</small>`);
+            } else {
+                statusBar.text(errorMessage);
+            }
+        } else {
+            statusBar.remove();
         }
     });
-});
-
+    // Verificar si el nombre del producto ya existe en la BD
+    $('#name').on('keyup', function() {
+        let productName = $(this).val().trim();
+        if (productName.length > 0) {
+            $.post('./backend/check-product-name.php', { name: productName }, (response) => {
+                let result = JSON.parse(response);
+                let statusBar = $('#status-name');
+                if (result.exists) {
+                    if (statusBar.length === 0) {
+                        $('#name').after(`<small id='status-name' class='text-danger'>El nombre del producto ya existe.</small>`);
+                    } else {
+                        statusBar.text("El nombre del producto ya existe.");
+                    }
+                } else {
+                    statusBar.remove();
+                }
+            });
+        } else {
+            $('#status-name').remove();
+        }
+    });
     function fetchProducts() {
         $.ajax({
         url: 'backend/product-list.php',
@@ -218,32 +236,50 @@ $(document).ready(function(){
         }
     })
 
-    $(document).on('click', '.product-item', function () { 
+    $(document).on('click', '.product-item', function(e) {
+        e.preventDefault();
+        $('button.btn-primary').text("Modificar Producto");
+        
         let element = $(this)[0].parentElement.parentElement;
         let id = $(element).attr('productId');
-    
-        $.post('backend/product-get.php', { id }, function (response) {
-            edit = true;
-    
-            console.log("Respuesta del servidor:", response); // Verifica el formato de la respuesta
-    
-            const product = response; // ✅ No necesitamos JSON.parse() si la respuesta ya es un objeto
-    
-            $('#name').val(product.nombre);
-    
-            var baseJSON = {
-                "precio": product.precio,
-                "unidades": product.unidades,
-                "modelo": product.modelo,
-                "marca": product.marca,
-                "detalles": product.detalles,
-                "imagen": product.imagen
-            };
-    
-            $('#productId').val(product.id);
-            var JsonString = JSON.stringify(baseJSON, null, 2);
-            document.getElementById("description").value = JsonString;
+        
+        if (!id) {
+            alert("Error: No se encontró el ID del producto.");
+            return;
+        }
+        
+        $.post('./backend/product-single.php', { id }, (response) => {
+            try {
+                let product = JSON.parse(response);
+                
+                if (!product || Object.keys(product).length === 0) {
+                    alert("Error: No se recibió información válida del producto.");
+                    return;
+                }
+                
+                // Insertar datos en los campos correspondientes si existen
+                $('#name').val(product.nombre || '');
+                $('#marca').val(product.marca || 'NA');
+                $('#modelo').val(product.modelo || 'XX-000');
+                $('#precio').val(product.precio !== undefined ? product.precio : 0.0);
+                $('#unidades').val(product.unidades !== undefined ? product.unidades : 1);
+                $('#detalles').val(product.detalles || 'NA');
+                $('#imagen').val(product.imagen || 'img/default.png');
+                
+                // Insertar el ID en el campo oculto para su actualización
+                $('#productId').val(product.id || '');
+                
+                // Establecer la bandera de edición en true
+                edit = true;
+            } catch (error) {
+                alert("Error al procesar la información del producto.");
+                console.error("Error de JSON:", error);
+            }
+        }).fail(() => {
+            alert("Error en la petición al servidor.");
         });
-    });
+    })
+
 
 }
+})
