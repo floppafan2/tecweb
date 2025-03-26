@@ -33,47 +33,48 @@
     // SE HACE LA CONVERSIÓN DE ARRAY A JSON
     echo json_encode($data, JSON_PRETTY_PRINT);*/
     // 1. Inclusión del archivo que contiene la clase Products
+    header('Content-Type: application/json; charset=UTF-8');
+    error_reporting(0);
+
     require_once __DIR__.'/myapi/Products.php';
 
-    // 2. Creación del objeto de la clase principal
-    $products = new Products('marketzone'); // Reemplaza con el nombre real de tu BD
+    $products = new Products('marketzone'); // Usa tu nombre de BD real
 
-    // SE OBTIENE LA INFORMACIÓN DEL PRODUCTO ENVIADA POR EL CLIENTE
     $producto = file_get_contents('php://input');
+    $response = [
+        'status' => 'error',
+        'message' => 'No se recibieron datos del producto'
+    ];
 
     if(!empty($producto)) {
-        // SE TRANSFORMA EL STRING DEL JSON A OBJETO
         $jsonOBJ = json_decode($producto);
         
-        // 3. Invocación al método de la operación correspondiente
-        // Primero verificamos si el producto existe
-        $products->singleByName($jsonOBJ->nombre);
-        $existingProduct = json_decode($products->getData(), true);
-        
-        if(empty($existingProduct) || isset($existingProduct['error'])) {
-            // Si no existe, lo añadimos
-            $products->add($jsonOBJ);
+        if(json_last_error() === JSON_ERROR_NONE) {
+            // Verificar si el producto ya existe
+            $products->singleByName($jsonOBJ->nombre);
+            $existing = json_decode($products->getData(), true);
             
-            // Actualizamos el mensaje de éxito
-            $products->data = [
-                'status' => 'success',
-                'message' => 'Producto agregado'
-            ];
+            if(empty($existing) || isset($existing['error'])) {
+                // Agregar el producto
+                $products->add($jsonOBJ);
+                $result = json_decode($products->getData(), true);
+                
+                if(isset($result['success'])) {
+                    $response = [
+                        'status' => 'success',
+                        'message' => 'Producto agregado correctamente'
+                    ];
+                } else {
+                    $response['message'] = 'Error al agregar el producto: ' . 
+                        (isset($result['error']) ? $result['error'] : 'Error desconocido');
+                }
+            } else {
+                $response['message'] = 'Ya existe un producto con ese nombre';
+            }
         } else {
-            // Si existe, preparamos mensaje de error
-            $products->data = [
-                'status' => 'error',
-                'message' => 'Ya existe un producto con ese nombre'
-            ];
+            $response['message'] = 'JSON inválido';
         }
-    } else {
-        $products->data = [
-            'status' => 'error',
-            'message' => 'No se recibieron datos del producto'
-        ];
     }
 
-    // 4. Devolver la información solicitada en formato JSON
-    header('Content-Type: application/json');
-    echo $products->getData();
+    echo json_encode($response);
 ?>
