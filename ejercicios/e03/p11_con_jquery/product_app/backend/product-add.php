@@ -1,5 +1,5 @@
 <?php
-    include_once __DIR__.'/database.php';
+    /*include_once __DIR__.'/database.php';
 
     // SE OBTIENE LA INFORMACIÓN DEL PRODUCTO ENVIADA POR EL CLIENTE
     $producto = file_get_contents('php://input');
@@ -31,5 +31,49 @@
     }
 
     // SE HACE LA CONVERSIÓN DE ARRAY A JSON
-    echo json_encode($data, JSON_PRETTY_PRINT);
+    echo json_encode($data, JSON_PRETTY_PRINT);*/
+    // 1. Inclusión del archivo que contiene la clase Products
+    require_once __DIR__.'/myapi/Products.php';
+
+    // 2. Creación del objeto de la clase principal
+    $products = new Products('marketzone'); // Reemplaza con el nombre real de tu BD
+
+    // SE OBTIENE LA INFORMACIÓN DEL PRODUCTO ENVIADA POR EL CLIENTE
+    $producto = file_get_contents('php://input');
+
+    if(!empty($producto)) {
+        // SE TRANSFORMA EL STRING DEL JSON A OBJETO
+        $jsonOBJ = json_decode($producto);
+        
+        // 3. Invocación al método de la operación correspondiente
+        // Primero verificamos si el producto existe
+        $products->singleByName($jsonOBJ->nombre);
+        $existingProduct = json_decode($products->getData(), true);
+        
+        if(empty($existingProduct) || isset($existingProduct['error'])) {
+            // Si no existe, lo añadimos
+            $products->add($jsonOBJ);
+            
+            // Actualizamos el mensaje de éxito
+            $products->data = [
+                'status' => 'success',
+                'message' => 'Producto agregado'
+            ];
+        } else {
+            // Si existe, preparamos mensaje de error
+            $products->data = [
+                'status' => 'error',
+                'message' => 'Ya existe un producto con ese nombre'
+            ];
+        }
+    } else {
+        $products->data = [
+            'status' => 'error',
+            'message' => 'No se recibieron datos del producto'
+        ];
+    }
+
+    // 4. Devolver la información solicitada en formato JSON
+    header('Content-Type: application/json');
+    echo $products->getData();
 ?>

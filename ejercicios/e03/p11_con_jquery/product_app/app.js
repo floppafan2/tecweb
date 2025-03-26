@@ -28,13 +28,17 @@ $(document).ready(function(){
         if($('#search').val()){
             let search = $('#search').val();
             $.ajax({
-            url: 'backend/product-search.php?search='+search,
-            type: 'GET',
-            success: function(response) {
-                let product = JSON.parse(response);
-                let template = '';
-                let tmeplate_dec = '';
-                product.forEach(product => {
+                url: 'backend/product-search.php?search='+search,
+                type: 'GET',
+                dataType: 'json', // Asegura que jQuery parseé la respuesta como JSON
+                success: function(response) {
+                    // response ya es un objeto JavaScript, no necesitas parsearlo
+                    let template = '';
+                    let tmeplate_dec = '';
+                    
+                    // Verifica si response es un array
+                    if(Array.isArray(response)) {
+                        response.forEach(product => {
                     let descripcion = '';
                     descripcion += '<li>precio: '+product.precio+'</li>';
                     descripcion += '<li>unidades: '+product.unidades+'</li>';
@@ -57,19 +61,24 @@ $(document).ready(function(){
 
                     template += `<li>${product.nombre}</li>`
                 });
-                $('#container').html(template);
-                $('#products').html(tmeplate_dec);
-                console.log(template);
-                $('#product-result').show();
+            } else {
+                console.error("La respuesta no es un array:", response);
             }
-
-        })
-        }
-        else{
-            fetchProducts();
-            $('#product-result').hide();
+            
+            $('#container').html(template);
+            $('#products').html(tmeplate_dec);
+            $('#product-result').show();
+        },
+        error: function(xhr, status, error) {
+            console.error("Error en la búsqueda:", error);
         }
     });
+}
+else {
+    fetchProducts();
+    $('#product-result').hide();
+}
+});
 
     $('#product-form').submit(function(e) {
         e.preventDefault();
@@ -170,44 +179,49 @@ $(document).ready(function(){
     });
 });
 
-    function fetchProducts() {
-        $.ajax({
+function fetchProducts() {
+    $.ajax({
         url: 'backend/product-list.php',
         type: 'GET',
+        dataType: 'json', // Asegura que jQuery parseé la respuesta como JSON
         success: function(response) {
-            console.log(response);
-            let product = JSON.parse(response);
+            // response ya es un objeto/array JavaScript
             let template = '';
-            product.forEach(product => {
-                let descripcion = `
-                    <li>precio: ${product.precio}</li>
-                    <li>unidades: ${product.unidades}</li>
-                    <li>modelo: ${product.modelo}</li>
-                    <li>marca: ${product.marca}</li>
-                    <li>detalles: ${product.detalles}</li>
-                `;
-                template += `
-                    <tr productId="${product.id}">
-                        <td>${product.id}</td>
-                        <td>
-                            <a href="#" class="product-item">${product.nombre}</a>
-                        </td>
-                        <td><ul>${descripcion}</ul></td>
-                        <td>
-                            <button class="product-delete btn btn-danger">
-                                Eliminar
-                            </button>
-                        </td>
-                    </tr>
-                `;
-            });
-            $('#products').html(template);
-        },
-        error: function(status, error) {
-            console.error("Error en la solicitud AJAX:", status, error);
-        }
-    });
-
+            
+            if(Array.isArray(response)) {
+                response.forEach(product => {
+            let descripcion = `
+                <li>precio: ${product.precio}</li>
+                <li>unidades: ${product.unidades}</li>
+                <li>modelo: ${product.modelo}</li>
+                <li>marca: ${product.marca}</li>
+                <li>detalles: ${product.detalles}</li>
+            `;
+            template += `
+                <tr productId="${product.id}">
+                    <td>${product.id}</td>
+                    <td>
+                        <a href="#" class="product-item">${product.nombre}</a>
+                    </td>
+                    <td><ul>${descripcion}</ul></td>
+                    <td>
+                        <button class="product-delete btn btn-danger">
+                            Eliminar
+                        </button>
+                    </td>
+                </tr>
+            `;
+        });
+    } else {
+        console.error("La respuesta no es un array:", response);
+    }
+    
+    $('#products').html(template);
+},
+error: function(xhr, status, error) {
+    console.error("Error al obtener productos:", error);
+}
+});
     $(document).on('click','.product-delete',function(){
         if(confirm('Quieres eliminarlo?')){
             let element = $(this)[0].parentElement.parentElement;

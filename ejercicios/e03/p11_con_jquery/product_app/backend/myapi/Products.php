@@ -1,61 +1,136 @@
 <?php
+require_once 'DataBase.php';
 
-require_once "DataBase.php";
-
+/**
+ * Clase para manejar operaciones de productos en la base de datos
+ */
 class Products extends DataBase {
-    private $response = [];
-    
-    public function __construct($db, $user, $pass) {
+    protected $data = [];
+
+    public function __construct($db, $user = 'root', $pass = '7*Vl*zwyPeGlNLTm') {
         parent::__construct($db, $user, $pass);
+        $this->data = [];
     }
-    
-    public function add($object) {
-        $name = $object["name"];
-        $price = $object["price"];
-        $query = "INSERT INTO products (name, price) VALUES ('$name', '$price')";
-        $this->conexion->query($query);
+
+    public function add($product) {
+        // Implementación para añadir producto
+        $query = "INSERT INTO productos (...) VALUES (...)";
+        $result = $this->conexion->query($query);
+        $this->data = $result ? ['success' => true] : ['error' => $this->conexion->error];
     }
-    
+
     public function delete($id) {
-        $query = "DELETE FROM products WHERE id = '$id'";
-        $this->conexion->query($query);
+        $query = "UPDATE productos SET eliminado=1 WHERE id = '$id'";
+        $result = $this->conexion->query($query);
+        $this->data = $result ? ['success' => true] : ['error' => $this->conexion->error];
     }
+
+    public function edit($id, $productData) {
+        // Sanitizar los datos
+        $id = $this->conexion->real_escape_string($id);
+        $nombre = $this->conexion->real_escape_string($productData['nombre']);
+        $marca = $this->conexion->real_escape_string($productData['marca']);
+        $modelo = $this->conexion->real_escape_string($productData['modelo']);
+        $precio = floatval($productData['precio']);
+        $detalles = $this->conexion->real_escape_string($productData['detalles']);
+        $unidades = intval($productData['unidades']);
+        $imagen = $this->conexion->real_escape_string($productData['imagen']);
     
-    public function edit($object) {
-        $id = $object["id"];
-        $name = $object["name"];
-        $price = $object["price"];
-        $query = "UPDATE products SET name = '$name', price = '$price' WHERE id = '$id'";
-        $this->conexion->query($query);
+        // Verificar si el producto existe
+        $this->single($id);
+        if (empty($this->data) || isset($this->data['error'])) {
+            $this->data = ['error' => 'No se encontró el producto'];
+            return;
+        }
+    
+        // Actualizar el producto
+        $query = "UPDATE productos SET 
+                  nombre='$nombre', 
+                  marca='$marca', 
+                  modelo='$modelo', 
+                  precio=$precio, 
+                  detalles='$detalles', 
+                  unidades=$unidades, 
+                  imagen='$imagen' 
+                  WHERE id='$id'";
+        
+        $result = $this->conexion->query($query);
+        $this->data = $result ? ['success' => true] : ['error' => $this->conexion->error];
     }
-    
+
+    /**
+     * Lista todos los productos
+     */
     public function list() {
-        $query = "SELECT * FROM products";
+        $query = "SELECT * FROM productos WHERE eliminado = 0";
         $result = $this->conexion->query($query);
-        $this->response = $result->fetch_all(MYSQLI_ASSOC);
+        
+        if ($result) {
+            $this->data = [];
+            while ($row = $result->fetch_assoc()) {
+                $this->data[] = $row;
+            }
+            
+            if (empty($this->data)) {
+                $this->data = ['error' => 'No se encontraron productos'];
+            }
+        } else {
+            $this->data = ['error' => $this->conexion->error];
+        }
     }
-    
-    public function search($term) {
-        $query = "SELECT * FROM products WHERE name LIKE '%$term%'";
+
+    public function search($criteria) {
+        $search = $this->conexion->real_escape_string($criteria);
+        $query = "SELECT * FROM productos WHERE 
+                  (id = '$search' OR 
+                   nombre LIKE '%$search%' OR 
+                   marca LIKE '%$search%' OR 
+                   detalles LIKE '%$search%') 
+                  AND eliminado = 0";
+        
         $result = $this->conexion->query($query);
-        $this->response = $result->fetch_all(MYSQLI_ASSOC);
+        
+        if ($result) {
+            $this->data = [];
+            while ($row = $result->fetch_assoc()) {
+                $this->data[] = $row;
+            }
+            
+            if (empty($this->data)) {
+                $this->data = ['error' => 'No se encontraron resultados'];
+            }
+        } else {
+            $this->data = ['error' => $this->conexion->error];
+        }
     }
-    
+
     public function single($id) {
-        $query = "SELECT * FROM products WHERE id = '$id'";
+        $query = "SELECT * FROM productos WHERE id = '$id' AND eliminado = 0";
         $result = $this->conexion->query($query);
-        $this->response = $result->fetch_assoc();
+        
+        if ($result) {
+            $this->data = $result->fetch_assoc();
+            if (!$this->data) {
+                $this->data = ['error' => 'No se encontró el producto'];
+            }
+        } else {
+            $this->data = ['error' => $this->conexion->error];
+        }
     }
-    
+
     public function singleByName($name) {
-        $query = "SELECT * FROM products WHERE name = '$name'";
+        $query = "SELECT * FROM productos WHERE nombre = '$name'";
         $result = $this->conexion->query($query);
-        $this->response = $result->fetch_assoc();
+        
+        if ($result) {
+            $this->data = $result->fetch_assoc();
+        } else {
+            $this->data = ['error' => $this->conexion->error];
+        }
     }
-    
+
     public function getData() {
-        return json_encode($this->response);
+        return json_encode($this->data);
     }
 }
-
 ?>
