@@ -12,30 +12,27 @@
             $this->data = [];
         }
 
-        public function add($product) {
-            // Sanitizar los datos
-            $nombre = $this->conexion->real_escape_string($product->nombre);
-            $marca = $this->conexion->real_escape_string($product->marca);
-            $modelo = $this->conexion->real_escape_string($product->modelo);
-            $precio = floatval($product->precio);
-            $detalles = $this->conexion->real_escape_string($product->detalles);
-            $unidades = intval($product->unidades);
-            $imagen = isset($product->imagen) ? $this->conexion->real_escape_string($product->imagen) : 'img/default.jpg';
+        public function add($producto) {
+            // Ya es un objeto stdClass, no uses json_decode aquí
         
-            $query = "INSERT INTO productos VALUES (
-                null, 
-                '$nombre', 
-                '$marca', 
-                '$modelo', 
-                $precio, 
-                '$detalles', 
-                $unidades, 
-                '$imagen', 
-                0
-            )";
+            $nombre = $this->conexion->real_escape_string($producto->nombre);
+            $marca = $this->conexion->real_escape_string($producto->marca);
+            $modelo = $this->conexion->real_escape_string($producto->modelo);
+            $precio = floatval($producto->precio);
+            $detalles = $this->conexion->real_escape_string($producto->detalles);
+            $unidades = intval($producto->unidades);
+            $imagen = $this->conexion->real_escape_string($producto->imagen);
+        
+            $query = "INSERT INTO productos (nombre, marca, modelo, precio, detalles, unidades, imagen) 
+                      VALUES ('$nombre', '$marca', '$modelo', $precio, '$detalles', $unidades, '$imagen')";
         
             $result = $this->conexion->query($query);
-            $this->data = $result ? ['success' => true] : ['error' => $this->conexion->error];
+            $nuevoId = $this->conexion->insert_id;
+        
+            $this->data = $result
+                ? ['status' => 'success', 'message' => 'Producto agregado correctamente', 'id' => $nuevoId]
+                : ['status' => 'error', 'message' => $this->conexion->error];
         }
+        
     }
 ?>

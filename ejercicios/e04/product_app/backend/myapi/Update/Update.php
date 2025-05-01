@@ -35,8 +35,10 @@
                       WHERE id='$id'";
             
             $result = $this->conexion->query($query);
-            $this->data = $result ? ['success' => true] : ['error' => $this->conexion->error];
+            $this->data = $result
+                ? ['status' => 'success', 'message' => 'Producto modificado correctamente']
+                : ['status' => 'error', 'message' => $this->conexion->error];
+
         }
-    
     }
 ?>

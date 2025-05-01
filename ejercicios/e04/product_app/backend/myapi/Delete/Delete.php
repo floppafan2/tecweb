@@ -15,7 +15,11 @@
         public function delete($id) {
             $query = "UPDATE productos SET eliminado=1 WHERE id = '$id'";
             $result = $this->conexion->query($query);
-            $this->data = $result ? ['success' => true] : ['error' => $this->conexion->error];
+            if ($result) {
+                $this->data = ['status' => 'success', 'message' => 'Producto eliminado correctamente'];
+            } else {
+                $this->data = ['status' => 'error', 'message' => $this->conexion->error];
+            }
         }
     }
 ?>
